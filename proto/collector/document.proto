@@ -16,8 +16,9 @@ service Document
 // 文档抓取的请求
 message DocumentScrapeRequest
 {
-    string address = 1; // 抓取地址
-    string keyword = 2; // 关键字
+    string name = 1;             // 文档名
+    repeated string keyword = 2; // 关键字
+    string address = 3;          // 抓取地址
 }
 
 message DocumentListResponse
