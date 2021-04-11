@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package collector;
+
+// 状态
+message Status
+{
+    int32 code = 1;     // 状态码
+    string message = 2; // 状态信息
+}
+
+// 空白回复
+message BlankResponse
+{
+    Status status = 1; // 状态
+}
+
+// 文档实体
+message DocumentEntity
+{
+    string name = 1;           // 名称
+    repeated string label = 2; // 标签
+    string address = 3;        // 地址
+}
+
+// 列举的请求
+message ListRequest
+{
+    int64 offset = 1; // 偏移值
+    int64 count = 2;  // 数量
+}

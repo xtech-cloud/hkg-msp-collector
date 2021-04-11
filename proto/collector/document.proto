@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "proto/collector/shared.proto";
+
+package collector;
+
+// 文档
+service Document
+{
+    // 抓取
+    rpc Scrape(DocumentScrapeRequest) returns (BlankResponse) {}
+    // 列举
+    rpc List(ListRequest) returns (DocumentListResponse) {}
+}
+
+// 文档抓取的请求
+message DocumentScrapeRequest
+{
+    string address = 1; // 抓取地址
+    string keyword = 2; // 关键字
+}
+
+message DocumentListResponse
+{
+    Status status = 1;                  // 状态
+    int64 total = 2;                    // 实体总数
+    repeated DocumentEntity entity = 3; // 实体列表
+}
