@@ -19,6 +19,7 @@ message DocumentScrapeRequest
     string name = 1;             // 文档名
     repeated string keyword = 2; // 关键字
     string address = 3;          // 抓取地址
+    string attribute = 4;        // 爬取属性
 }
 
 message DocumentListResponse
