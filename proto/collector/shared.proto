@@ -18,11 +18,12 @@ message BlankResponse
 // 文档实体
 message DocumentEntity
 {
-    string name = 1;             // 名称
-    repeated string keyword = 2; // 关键字
-    string address = 3;          // 地址
-    string rawText = 4;          // 原始文本
-    int64 crawledAt = 5;         // 获取时间
+    string uuid = 1;
+    string name = 2;             // 名称
+    repeated string keyword = 3; // 关键字
+    string address = 4;          // 地址
+    string rawText = 5;          // 原始文本
+    int64 crawledAt = 6;         // 获取时间
 }
 
 // 列举的请求
