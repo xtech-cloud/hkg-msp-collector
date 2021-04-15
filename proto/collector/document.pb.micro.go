@@ -38,6 +38,8 @@ type DocumentService interface {
 	Scrape(ctx context.Context, in *DocumentScrapeRequest, opts ...client.CallOption) (*BlankResponse, error)
 	// 列举
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*DocumentListResponse, error)
+	// 整理
+	Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*BlankResponse, error)
 }
 
 type documentService struct {
@@ -72,6 +74,16 @@ func (c *documentService) List(ctx context.Context, in *ListRequest, opts ...cli
 	return out, nil
 }
 
+func (c *documentService) Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*BlankResponse, error) {
+	req := c.c.NewRequest(c.name, "Document.Tidy", in)
+	out := new(BlankResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Document service
 
 type DocumentHandler interface {
@@ -79,12 +91,15 @@ type DocumentHandler interface {
 	Scrape(context.Context, *DocumentScrapeRequest, *BlankResponse) error
 	// 列举
 	List(context.Context, *ListRequest, *DocumentListResponse) error
+	// 整理
+	Tidy(context.Context, *DocumentTidyRequest, *BlankResponse) error
 }
 
 func RegisterDocumentHandler(s server.Server, hdlr DocumentHandler, opts ...server.HandlerOption) error {
 	type document interface {
 		Scrape(ctx context.Context, in *DocumentScrapeRequest, out *BlankResponse) error
 		List(ctx context.Context, in *ListRequest, out *DocumentListResponse) error
+		Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error
 	}
 	type Document struct {
 		document
@@ -103,4 +118,8 @@ func (h *documentHandler) Scrape(ctx context.Context, in *DocumentScrapeRequest,
 
 func (h *documentHandler) List(ctx context.Context, in *ListRequest, out *DocumentListResponse) error {
 	return h.DocumentHandler.List(ctx, in, out)
+}
+
+func (h *documentHandler) Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error {
+	return h.DocumentHandler.Tidy(ctx, in, out)
 }
