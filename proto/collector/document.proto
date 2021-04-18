@@ -28,7 +28,8 @@ message DocumentScrapeRequest
 message DocumentTidyRequest
 {
     string uuid = 1;              // 文档唯一识别码
-    map<string, string> rule = 2; // 规则, key时原始文本中的标签，value是结构化后的字段
+    string host = 2;              // 采集地址
+    map<string, string> rule = 3; // 规则, key时原始文本中的标签，value是结构化后的字段
 }
 
 message DocumentListResponse
