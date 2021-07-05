@@ -8,18 +8,20 @@ package collector;
 service Document
 {
     // 抓取
-    rpc Scrape(DocumentScrapeRequest) returns (BlankResponse) {}
+    rpc Scrape(DocumentScrapeRequest) returns (BlankResponse) { }
     // 列举
-    rpc List(ListRequest) returns (DocumentListResponse) {}
+    rpc List(ListRequest) returns (DocumentListResponse) { }
     // 整理
-    rpc Tidy(DocumentTidyRequest) returns (BlankResponse) {}
+    rpc Tidy(DocumentTidyRequest) returns (BlankResponse) { }
+    // 删除
+    rpc Delete(DocumentDeleteRequest) returns (BlankResponse) { }
 }
 
 // 文档抓取的请求
 message DocumentScrapeRequest
 {
     string name = 1;             // 文档名(也是爬取时的检索名字)
-    repeated string keyword = 2; // 关键字
+    repeated string keyword = 2; // 关键字(用于计算文档匹配度)
     string address = 3;          // 抓取地址
     string attribute = 4;        // 抓取属性
 }
@@ -37,4 +39,10 @@ message DocumentListResponse
     Status status = 1;                  // 状态
     int64 total = 2;                    // 实体总数
     repeated DocumentEntity entity = 3; // 实体列表
+}
+
+// 文档删除的请求
+message DocumentDeleteRequest
+{
+    string uuid = 1; // 文档唯一识别码
 }

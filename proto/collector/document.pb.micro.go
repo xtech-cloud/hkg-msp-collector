@@ -40,6 +40,8 @@ type DocumentService interface {
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*DocumentListResponse, error)
 	// 整理
 	Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*BlankResponse, error)
+	// 删除
+	Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*BlankResponse, error)
 }
 
 type documentService struct {
@@ -84,6 +86,16 @@ func (c *documentService) Tidy(ctx context.Context, in *DocumentTidyRequest, opt
 	return out, nil
 }
 
+func (c *documentService) Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*BlankResponse, error) {
+	req := c.c.NewRequest(c.name, "Document.Delete", in)
+	out := new(BlankResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Document service
 
 type DocumentHandler interface {
@@ -93,6 +105,8 @@ type DocumentHandler interface {
 	List(context.Context, *ListRequest, *DocumentListResponse) error
 	// 整理
 	Tidy(context.Context, *DocumentTidyRequest, *BlankResponse) error
+	// 删除
+	Delete(context.Context, *DocumentDeleteRequest, *BlankResponse) error
 }
 
 func RegisterDocumentHandler(s server.Server, hdlr DocumentHandler, opts ...server.HandlerOption) error {
@@ -100,6 +114,7 @@ func RegisterDocumentHandler(s server.Server, hdlr DocumentHandler, opts ...serv
 		Scrape(ctx context.Context, in *DocumentScrapeRequest, out *BlankResponse) error
 		List(ctx context.Context, in *ListRequest, out *DocumentListResponse) error
 		Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error
+		Delete(ctx context.Context, in *DocumentDeleteRequest, out *BlankResponse) error
 	}
 	type Document struct {
 		document
@@ -122,4 +137,8 @@ func (h *documentHandler) List(ctx context.Context, in *ListRequest, out *Docume
 
 func (h *documentHandler) Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error {
 	return h.DocumentHandler.Tidy(ctx, in, out)
+}
+
+func (h *documentHandler) Delete(ctx context.Context, in *DocumentDeleteRequest, out *BlankResponse) error {
+	return h.DocumentHandler.Delete(ctx, in, out)
 }
