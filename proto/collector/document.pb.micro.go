@@ -35,13 +35,15 @@ var _ server.Option
 
 type DocumentService interface {
 	// 抓取
-	Scrape(ctx context.Context, in *DocumentScrapeRequest, opts ...client.CallOption) (*BlankResponse, error)
+	Scrape(ctx context.Context, in *DocumentScrapeRequest, opts ...client.CallOption) (*DocumentScrapeResponse, error)
 	// 列举
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*DocumentListResponse, error)
 	// 整理
-	Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*BlankResponse, error)
+	Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*DocumentTidyResponse, error)
 	// 删除
-	Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*BlankResponse, error)
+	Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*DocumentDeleteResponse, error)
+	// 批量删除
+	BatchDelete(ctx context.Context, in *DocumentBatchDeleteRequest, opts ...client.CallOption) (*DocumentBatchDeleteResponse, error)
 }
 
 type documentService struct {
@@ -56,9 +58,9 @@ func NewDocumentService(name string, c client.Client) DocumentService {
 	}
 }
 
-func (c *documentService) Scrape(ctx context.Context, in *DocumentScrapeRequest, opts ...client.CallOption) (*BlankResponse, error) {
+func (c *documentService) Scrape(ctx context.Context, in *DocumentScrapeRequest, opts ...client.CallOption) (*DocumentScrapeResponse, error) {
 	req := c.c.NewRequest(c.name, "Document.Scrape", in)
-	out := new(BlankResponse)
+	out := new(DocumentScrapeResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -76,9 +78,9 @@ func (c *documentService) List(ctx context.Context, in *ListRequest, opts ...cli
 	return out, nil
 }
 
-func (c *documentService) Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*BlankResponse, error) {
+func (c *documentService) Tidy(ctx context.Context, in *DocumentTidyRequest, opts ...client.CallOption) (*DocumentTidyResponse, error) {
 	req := c.c.NewRequest(c.name, "Document.Tidy", in)
-	out := new(BlankResponse)
+	out := new(DocumentTidyResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,9 +88,19 @@ func (c *documentService) Tidy(ctx context.Context, in *DocumentTidyRequest, opt
 	return out, nil
 }
 
-func (c *documentService) Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*BlankResponse, error) {
+func (c *documentService) Delete(ctx context.Context, in *DocumentDeleteRequest, opts ...client.CallOption) (*DocumentDeleteResponse, error) {
 	req := c.c.NewRequest(c.name, "Document.Delete", in)
-	out := new(BlankResponse)
+	out := new(DocumentDeleteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *documentService) BatchDelete(ctx context.Context, in *DocumentBatchDeleteRequest, opts ...client.CallOption) (*DocumentBatchDeleteResponse, error) {
+	req := c.c.NewRequest(c.name, "Document.BatchDelete", in)
+	out := new(DocumentBatchDeleteResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -100,21 +112,24 @@ func (c *documentService) Delete(ctx context.Context, in *DocumentDeleteRequest,
 
 type DocumentHandler interface {
 	// 抓取
-	Scrape(context.Context, *DocumentScrapeRequest, *BlankResponse) error
+	Scrape(context.Context, *DocumentScrapeRequest, *DocumentScrapeResponse) error
 	// 列举
 	List(context.Context, *ListRequest, *DocumentListResponse) error
 	// 整理
-	Tidy(context.Context, *DocumentTidyRequest, *BlankResponse) error
+	Tidy(context.Context, *DocumentTidyRequest, *DocumentTidyResponse) error
 	// 删除
-	Delete(context.Context, *DocumentDeleteRequest, *BlankResponse) error
+	Delete(context.Context, *DocumentDeleteRequest, *DocumentDeleteResponse) error
+	// 批量删除
+	BatchDelete(context.Context, *DocumentBatchDeleteRequest, *DocumentBatchDeleteResponse) error
 }
 
 func RegisterDocumentHandler(s server.Server, hdlr DocumentHandler, opts ...server.HandlerOption) error {
 	type document interface {
-		Scrape(ctx context.Context, in *DocumentScrapeRequest, out *BlankResponse) error
+		Scrape(ctx context.Context, in *DocumentScrapeRequest, out *DocumentScrapeResponse) error
 		List(ctx context.Context, in *ListRequest, out *DocumentListResponse) error
-		Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error
-		Delete(ctx context.Context, in *DocumentDeleteRequest, out *BlankResponse) error
+		Tidy(ctx context.Context, in *DocumentTidyRequest, out *DocumentTidyResponse) error
+		Delete(ctx context.Context, in *DocumentDeleteRequest, out *DocumentDeleteResponse) error
+		BatchDelete(ctx context.Context, in *DocumentBatchDeleteRequest, out *DocumentBatchDeleteResponse) error
 	}
 	type Document struct {
 		document
@@ -127,7 +142,7 @@ type documentHandler struct {
 	DocumentHandler
 }
 
-func (h *documentHandler) Scrape(ctx context.Context, in *DocumentScrapeRequest, out *BlankResponse) error {
+func (h *documentHandler) Scrape(ctx context.Context, in *DocumentScrapeRequest, out *DocumentScrapeResponse) error {
 	return h.DocumentHandler.Scrape(ctx, in, out)
 }
 
@@ -135,10 +150,14 @@ func (h *documentHandler) List(ctx context.Context, in *ListRequest, out *Docume
 	return h.DocumentHandler.List(ctx, in, out)
 }
 
-func (h *documentHandler) Tidy(ctx context.Context, in *DocumentTidyRequest, out *BlankResponse) error {
+func (h *documentHandler) Tidy(ctx context.Context, in *DocumentTidyRequest, out *DocumentTidyResponse) error {
 	return h.DocumentHandler.Tidy(ctx, in, out)
 }
 
-func (h *documentHandler) Delete(ctx context.Context, in *DocumentDeleteRequest, out *BlankResponse) error {
+func (h *documentHandler) Delete(ctx context.Context, in *DocumentDeleteRequest, out *DocumentDeleteResponse) error {
 	return h.DocumentHandler.Delete(ctx, in, out)
+}
+
+func (h *documentHandler) BatchDelete(ctx context.Context, in *DocumentBatchDeleteRequest, out *DocumentBatchDeleteResponse) error {
+	return h.DocumentHandler.BatchDelete(ctx, in, out)
 }

@@ -8,13 +8,15 @@ package collector;
 service Document
 {
     // 抓取
-    rpc Scrape(DocumentScrapeRequest) returns (BlankResponse) { }
+    rpc Scrape(DocumentScrapeRequest) returns (DocumentScrapeResponse) { }
     // 列举
     rpc List(ListRequest) returns (DocumentListResponse) { }
     // 整理
-    rpc Tidy(DocumentTidyRequest) returns (BlankResponse) { }
+    rpc Tidy(DocumentTidyRequest) returns (DocumentTidyResponse) { }
     // 删除
-    rpc Delete(DocumentDeleteRequest) returns (BlankResponse) { }
+    rpc Delete(DocumentDeleteRequest) returns (DocumentDeleteResponse) { }
+    // 批量删除
+    rpc BatchDelete(DocumentBatchDeleteRequest) returns (DocumentBatchDeleteResponse) { }
 }
 
 // 文档抓取的请求
@@ -26,12 +28,26 @@ message DocumentScrapeRequest
     string attribute = 4;        // 抓取属性
 }
 
+// 文档抓取的回复
+message DocumentScrapeResponse
+{
+    Status status = 1; // 状态
+    string uuid = 2;   // 文档唯一识别码
+}
+
 // 文档整理的请求
 message DocumentTidyRequest
 {
     string uuid = 1;              // 文档唯一识别码
     string host = 2;              // 采集地址
     map<string, string> rule = 3; // 规则, key时原始文本中的标签，value是结构化后的字段
+}
+
+// 文档整理的回复
+message DocumentTidyResponse
+{
+    Status status = 1; // 状态
+    string uuid = 2;   // 文档唯一识别码
 }
 
 message DocumentListResponse
@@ -45,4 +61,24 @@ message DocumentListResponse
 message DocumentDeleteRequest
 {
     string uuid = 1; // 文档唯一识别码
+}
+
+// 文档删除的回复
+message DocumentDeleteResponse
+{
+    Status status = 1; // 状态
+    string uuid = 2;   // 文档唯一识别码
+}
+
+// 文档批量删除的请求
+message DocumentBatchDeleteRequest
+{
+    repeated string uuid = 1; // 文档唯一识别码
+}
+
+// 文档批量删除的回复
+message DocumentBatchDeleteResponse
+{
+    Status status = 1;        // 状态
+    repeated string uuid = 2; // 成功删除的文档唯一识别码
 }
